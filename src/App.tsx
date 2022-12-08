@@ -11,7 +11,6 @@ import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
 const App: FC<undefined> = () => {
   let sData: any = window.localStorage.getItem('todo')
   let count: number = 0
-  const [exist, setExist] = useState<boolean>(false)
   const [editnull, setEditnull] = useState<boolean>(false)
   const [alert, setAlert] = useState<boolean>(false)
   const [id, setId] = useState<string>()
