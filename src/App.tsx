@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 import uuid4 from "uuid4";
+import './App.css'
 import { FC } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Button, Modal, ModalHeader, ModalBody, ModalFooter, FormGroup, Input, Label, Alert, Col } from 'reactstrap';
@@ -11,7 +12,6 @@ import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
 const App: FC<undefined> = () => {
   let sData: any = window.localStorage.getItem('todo')
   let count: number = 0
-  const [exist, setExist] = useState<boolean>(false)
   const [editnull, setEditnull] = useState<boolean>(false)
   const [alert, setAlert] = useState<boolean>(false)
   const [id, setId] = useState<string>()
@@ -20,6 +20,16 @@ const App: FC<undefined> = () => {
   const [newtodo, setNewtodo] = useState<string>('')
   const [todoList, setTodoList] = useState<[]>([])
   const [newname, SetNewname] = useState<string>('')
+  const [DarkMode , setDarkMode] = useState<boolean>(window.localStorage.getItem('dark-mode') == 'true' ? true : false)
+  const [bigletter , setBigletter] = useState<boolean>(window.localStorage.getItem('big-letter') == 'true' ? true : false)
+  const [sure , setSure] = useState<boolean>(false)
+  useEffect(() => {
+    window.localStorage.setItem('dark-mode', DarkMode.toString())
+  },[DarkMode])
+  useEffect(() => {
+    window.localStorage.setItem('big-letter', bigletter.toString())
+  },[bigletter])
+
   useEffect(() => {
     if (JSON.parse(sData)) {
       setTodoList(JSON.parse(sData))
@@ -60,6 +70,7 @@ const App: FC<undefined> = () => {
     }
     for(let i = 0; todoList.length>i;i++){
       if(todoList[i].name == newtodo){
+        window.alert('already in the List')
         return;
       }
       
@@ -95,8 +106,21 @@ const App: FC<undefined> = () => {
       count++
     }
   })
+  console.log(DarkMode)
   return (
-    <>
+    <div className={DarkMode ? 'App-DARK' : 'App'}>
+      <div className={bigletter && 'App-BIG'}>
+      <br />
+      <div className='parameters'>
+      <input value={DarkMode} onChange={() => { setDarkMode(!DarkMode)}} type='checkbox' checked={DarkMode}></input>
+      <label htmlFor="">Dark Mode</label>
+      {' '}|{' '}
+      <input value={bigletter} onChange={() => { setBigletter(!bigletter)}} type='checkbox' checked={bigletter}></input>
+      <label htmlFor="">Big Letter</label>
+      {' '}|{' '}
+      <input type='checkbox'></input>
+      <label htmlFor="">check if you sure</label>
+      </div>
       <br />
       <FormGroup row>
         <Col xs='2' sm={2}></Col>
@@ -164,7 +188,8 @@ const App: FC<undefined> = () => {
           the Todo cant be Empty
         </Alert>
       }
-    </>
+      </div>
+    </div>
   )
 }
 

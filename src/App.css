@@ -1,0 +1,19 @@
+.parameters{
+    display: flex;
+    justify-content: center;
+}
+.App{
+    background-color: antiquewhite;
+}
+.App-DARK{
+    background-color: rgb(78, 78, 78);
+    color: white;
+    position:absolute;
+    top:0px;
+    right:0px;
+    bottom:0px;
+    left:0px;
+}
+.App-BIG {
+    font-size: 20px;
+}
