@@ -12,6 +12,8 @@ import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
 const App: FC<undefined> = () => {
   let sData: any = window.localStorage.getItem('todo')
   let count: number = 0
+  const [nothinghaveDone,setNothinghaveDone] = useState(false)
+  const [exist,setExist] = useState(false)
   const [editnull, setEditnull] = useState<boolean>(false)
   const [alert, setAlert] = useState<boolean>(false)
   const [id, setId] = useState<string>()
@@ -39,6 +41,18 @@ const App: FC<undefined> = () => {
   
   useEffect(() => {
     window.localStorage.setItem('todo', JSON.stringify(todoList))
+    let nothinghaveDone;
+    let arr = [];
+    todoList.map((e) => {
+      if(e.done == true){
+      arr.push(e.done)
+    }
+    })
+    if(arr.length == 0){
+      setNothinghaveDone(true)
+    }else{
+      setNothinghaveDone(false)
+    }
   }, [todoList])
   const deletetodo = (id: any) => {
     setTodoList(todoList.filter((e: { id: any; }) => {
@@ -46,9 +60,12 @@ const App: FC<undefined> = () => {
     }))
   }
   const cleardone = () => {
+   
     setTodoList(todoList.filter((e: { done: boolean; }) => {
       return e.done !== true
     }))
+   
+    
   }
   const done = (id) => {
     setTodoList(todoList.map((e) => {
@@ -70,7 +87,8 @@ const App: FC<undefined> = () => {
     }
     for(let i = 0; todoList.length>i;i++){
       if(todoList[i].name == newtodo){
-        window.alert('already in the List')
+        setExist(true)
+        
         return;
       }
       
@@ -106,7 +124,6 @@ const App: FC<undefined> = () => {
       count++
     }
   })
-  console.log(DarkMode)
   return (
     <div className={DarkMode ? 'App-DARK' : 'App'}>
       <div className={bigletter && 'App-BIG'}>
@@ -167,6 +184,16 @@ const App: FC<undefined> = () => {
               <Button color="secondary" onClick={() => setIsopen(false)}>Cancel</Button>
             </ModalFooter>
           </Modal>
+          <div>
+        <Modal isOpen={exist} >
+          <ModalBody>
+           this Todo already Exist
+          </ModalBody>
+          <ModalFooter>
+            <Button color="primary" onClick={() => setExist(false)}>OK</Button>{' '}
+          </ModalFooter>
+        </Modal>
+      </div>
 
           <hr />
           {todoList.length > 0 && <> <span>You have {todoList.length} todo{todoList.length > 1 && 's'}</span>
@@ -176,10 +203,9 @@ const App: FC<undefined> = () => {
             <span> {todoList.length - count == 0 ? 'All the work done ' : `${todoList.length - count}Left`}</span>
           </>}
           <br />
-          <Button color="danger" onClick={cleardone}>Clear done</Button>
-          <br />
-          <br />
-          <Button color="danger" onClick={() => setTodoList([])}>Clear All</Button>
+          <Button color="danger" onClick={cleardone} disabled={nothinghaveDone}>Clear done</Button>
+          {' '}
+          <Button color="danger" onClick={() => setTodoList([])} disabled={todoList.length == 0 ? true : false}>Clear All</Button>
         </Col>
         <Col xs='2' sm={2}></Col>
       </FormGroup>
