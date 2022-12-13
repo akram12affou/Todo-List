@@ -1,2 +1,2 @@
 # Todo-List 
-i build his project using typeScript , reactStrap Components , material - Ui icons and React js
+i build this project using typeScript , reactStrap Components , material - Ui icons and React js
