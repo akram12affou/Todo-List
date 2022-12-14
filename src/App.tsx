@@ -12,8 +12,9 @@ import DeleteOutlineTwoToneIcon from '@mui/icons-material/DeleteOutlineTwoTone';
 const App: FC<undefined> = () => {
   let sData: any = window.localStorage.getItem('todo')
   let count: number = 0
-  const [nothinghaveDone,setNothinghaveDone] = useState(false)
-  const [exist,setExist] = useState(false)
+  const [todoexisted, setTodoexisted] = useState(false)
+  const [nothinghaveDone, setNothinghaveDone] = useState(false)
+  const [exist, setExist] = useState(false)
   const [editnull, setEditnull] = useState<boolean>(false)
   const [alert, setAlert] = useState<boolean>(false)
   const [id, setId] = useState<string>()
@@ -22,35 +23,31 @@ const App: FC<undefined> = () => {
   const [newtodo, setNewtodo] = useState<string>('')
   const [todoList, setTodoList] = useState<[]>([])
   const [newname, SetNewname] = useState<string>('')
-  const [DarkMode , setDarkMode] = useState<boolean>(window.localStorage.getItem('dark-mode') == 'true' ? true : false)
-  const [bigletter , setBigletter] = useState<boolean>(window.localStorage.getItem('big-letter') == 'true' ? true : false)
-  const [sure , setSure] = useState<boolean>(false)
+  const [DarkMode, setDarkMode] = useState<boolean>(window.localStorage.getItem('dark-mode') == 'true' ? true : false)
+  const [bigletter, setBigletter] = useState<boolean>(window.localStorage.getItem('big-letter') == 'true' ? true : false)
   useEffect(() => {
     window.localStorage.setItem('dark-mode', DarkMode.toString())
-  },[DarkMode])
+  }, [DarkMode])
   useEffect(() => {
     window.localStorage.setItem('big-letter', bigletter.toString())
-  },[bigletter])
-
+  }, [bigletter])
   useEffect(() => {
     if (JSON.parse(sData)) {
       setTodoList(JSON.parse(sData))
     }
   }
     , [])
-  
   useEffect(() => {
     window.localStorage.setItem('todo', JSON.stringify(todoList))
-    let nothinghaveDone;
     let arr = [];
     todoList.map((e) => {
-      if(e.done == true){
-      arr.push(e.done)
-    }
+      if (e.done == true) {
+        arr.push(e.done)
+      }
     })
-    if(arr.length == 0){
+    if (arr.length == 0) {
       setNothinghaveDone(true)
-    }else{
+    } else {
       setNothinghaveDone(false)
     }
   }, [todoList])
@@ -60,12 +57,9 @@ const App: FC<undefined> = () => {
     }))
   }
   const cleardone = () => {
-   
     setTodoList(todoList.filter((e: { done: boolean; }) => {
       return e.done !== true
     }))
-   
-    
   }
   const done = (id) => {
     setTodoList(todoList.map((e) => {
@@ -76,7 +70,6 @@ const App: FC<undefined> = () => {
       }
     }))
   }
-  
   const addnew = (newtodo: string) => {
     if (newtodo == '') {
       setAlert(true)
@@ -85,20 +78,23 @@ const App: FC<undefined> = () => {
       }, 2500)
       return;
     }
-    for(let i = 0; todoList.length>i;i++){
-      if(todoList[i].name == newtodo){
+    for (let i = 0; todoList.length > i; i++) {
+      if (todoList[i].name == newtodo) {
         setExist(true)
-        
+
         return;
       }
-      
-    } 
+    }
     setTodoList([...todoList, { id: uuid4(), name: newtodo, done: false }])
     setNewtodo('')
-   
   }
-
   const Edit = (id: Number) => {
+    for (let i = 0; todoList.length > i; i++) {
+      if (todoList[i].name == newname) {
+        setTodoexisted(true)
+        return;
+      }
+    }
     if (newname == '') {
       setEditnull(true)
       return;
@@ -115,6 +111,7 @@ const App: FC<undefined> = () => {
     setIsopen(false)
   }
   const clickInEdit = (id: React.SetStateAction<undefined>) => {
+    setTodoexisted(false)
     setEditnull(false)
     setIsopen(true)
     setId(id)
@@ -126,94 +123,89 @@ const App: FC<undefined> = () => {
   })
   return (
     <div className={DarkMode ? 'App-DARK' : 'App'}>
-      <div className={bigletter && 'App-BIG'}>
       <br />
       <div className='parameters'>
-      <input value={DarkMode} onChange={() => { setDarkMode(!DarkMode)}} type='checkbox' checked={DarkMode}></input>
-      <label htmlFor="">Dark Mode</label>
-      {' '}|{' '}
-      <input value={bigletter} onChange={() => { setBigletter(!bigletter)}} type='checkbox' checked={bigletter}></input>
-      <label htmlFor="">Big Letter</label>
-      {' '}|{' '}
-      <input type='checkbox'></input>
-      <label htmlFor="">check if you sure</label>
+        <input value={DarkMode} onChange={() => { setDarkMode(!DarkMode) }} type='checkbox' checked={DarkMode}></input>
+        <label htmlFor="">Dark Mode</label>
+        &nbsp;&nbsp;
+        <input value={bigletter} onChange={() => { setBigletter(!bigletter) }} type='checkbox' checked={bigletter}></input>
+        <label htmlFor="">Big Letter</label>
       </div>
       <br />
-      <FormGroup row>
-        <Col xs='2' sm={2}></Col>
-        <Col sm={7}>
-          <Input placeholder='add todo ...' onChange={(e) => { setNewtodo(e.target.value) }} value={newtodo}></Input>
-        </Col>
-        <Col sm={1}>
-          <Button color="primary" onClick={() => addnew(newtodo)}><AddCircleOutlineTwoToneIcon /></Button>
-        </Col>
-        <Col sm={2}></Col>
-      </FormGroup>
-
-      <br />
-      <FormGroup row>
-        <Col xs='2' sm={2}></Col>
-        <Col sm={7}>
-          {todoList.length == 0 && <p>No todos for today</p>}
-          {todoList.map((e) => {
-            return (
-              <div key={e.id}>
-                {e.done ? <RadioButtonCheckedIcon /> : <RadioButtonUncheckedIcon />}
-                {e.name}
-                &nbsp; &nbsp;
-                <Button color="danger" onClick={() => deletetodo(e.id)}><DeleteOutlineTwoToneIcon /></Button>
-                &nbsp;
-                <Button color="primary" onClick={() => clickInEdit(e.id)}>Edit</Button>
-                &nbsp;
-                <Button color="success" onClick={() => done(e.id)} >{e.done ? 'undone' : 'done'}</Button>
-                <br /><br />
-              </div>
-            )
-          })}
-          <Modal isOpen={isopen}  >
-            <ModalHeader >Edit the Todo</ModalHeader>
-            <ModalBody>
-              <FormGroup>
-                <Label for="name">the New Name of the Todo :</Label>
-                <Input onChange={(e) => SetNewname(e.target.value)} placeholder="name..." />
-                {editnull && (<center><p style={{ color: 'red' }}>Empty</p></center>)}
-              </FormGroup>
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={() => Edit(id)}>Edit</Button>{' '}
-              <Button color="secondary" onClick={() => setIsopen(false)}>Cancel</Button>
-            </ModalFooter>
-          </Modal>
-          <div>
-        <Modal isOpen={exist} >
-          <ModalBody>
-           this Todo already Exist
-          </ModalBody>
-          <ModalFooter>
-            <Button color="primary" onClick={() => setExist(false)}>OK</Button>{' '}
-          </ModalFooter>
-        </Modal>
-      </div>
-
-          <hr />
-          {todoList.length > 0 && <> <span>You have {todoList.length} todo{todoList.length > 1 && 's'}</span>
+      <div className={bigletter && 'App-BIG'}>
+        <FormGroup row>
+          <Col xs='2' sm={2}></Col>
+          <Col sm={7}>
+            <Input placeholder='add todo ...' onChange={(e) => { setNewtodo(e.target.value) }} value={newtodo}></Input>
+          </Col>
+          <Col sm={1}>
+            <Button color="primary" onClick={() => addnew(newtodo)}><AddCircleOutlineTwoToneIcon /></Button>
+          </Col>
+          <Col sm={2}></Col>
+        </FormGroup>
+        <FormGroup row>
+          <Col xs='2' sm={2}></Col>
+          <Col sm={7}>
+            {todoList.length == 0 && <p>No todos for today</p>}
+            {todoList.map((e) => {
+              return (
+                <div key={e.id}>
+                  {e.done ? <RadioButtonCheckedIcon onClick={() => done(e.id)} /> : <RadioButtonUncheckedIcon onClick={() => done(e.id)} />}
+                  {e.name}
+                  &nbsp; &nbsp;
+                  <Button color="danger" onClick={() => deletetodo(e.id)}><DeleteOutlineTwoToneIcon /></Button>
+                  &nbsp;
+                  <Button color="primary" onClick={() => clickInEdit(e.id)}>Edit</Button>
+                  &nbsp;
+                  <Button color="success" onClick={() => done(e.id)} >{e.done ? 'undone' : 'done'}</Button>
+                  <br /><br />
+                </div>
+              )
+            })}
+            <Modal isOpen={isopen}  >
+              <ModalHeader >Edit the Todo</ModalHeader>
+              <ModalBody>
+                <FormGroup>
+                  <Label for="name">the New Name of the Todo :</Label>
+                  <Input onChange={(e) => SetNewname(e.target.value)} placeholder="name..." />
+                  {todoexisted && (<p>already existed</p>)}
+                  {editnull && (<center><p style={{ color: 'red' }}>Empty</p></center>)}
+                </FormGroup>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="primary" onClick={() => Edit(id)}>Edit</Button>{' '}
+                <Button color="secondary" onClick={() => setIsopen(false)}>Cancel</Button>
+              </ModalFooter>
+            </Modal>
+            <div>
+              <Modal isOpen={exist} >
+                <ModalBody>
+                  this Todo already Exist
+                </ModalBody>
+                <ModalFooter>
+                  <Button color="primary" onClick={() => setExist(false)}>OK</Button>{' '}
+                </ModalFooter>
+              </Modal>
+            </div>
+            <hr />
+            {todoList.length > 0 && <> <span>You have {todoList.length} todo{todoList.length > 1 && 's'}</span>
+              <br />
+              <span>You have done {count} todo{count > 1 && 's'}</span>
+              <br />
+              <span> {todoList.length - count == 0 ? 'All the work done ' : `${todoList.length - count}Left`}</span>
+            </>}
             <br />
-            <span>You have done {count} todo{count > 1 && 's'}</span>
-            <br />
-            <span> {todoList.length - count == 0 ? 'All the work done ' : `${todoList.length - count}Left`}</span>
-          </>}
-          <br />
-          <Button color="danger" onClick={cleardone} disabled={nothinghaveDone}>Clear done</Button>
-          {' '}
-          <Button color="danger" onClick={() => setTodoList([])} disabled={todoList.length == 0 ? true : false}>Clear All</Button>
-        </Col>
-        <Col xs='2' sm={2}></Col>
-      </FormGroup>
-      {alert &&
-        <Alert color="danger">
-          the Todo cant be Empty
-        </Alert>
-      }
+            <Button color="danger" onClick={cleardone} disabled={nothinghaveDone}>Clear done</Button>
+            {' '}
+            <Button color="danger" onClick={() => setTodoList([])} disabled={todoList.length == 0 ? true : false}>Clear All</Button>
+          </Col>
+          <Col xs='2' sm={2}></Col>
+        </FormGroup>
+        {alert &&
+          <Alert color="danger">
+            the Todo cant be Empty
+          </Alert>
+        }
       </div>
     </div>
   )

@@ -4,6 +4,11 @@
 }
 .App{
     background-color: antiquewhite;
+    position:absolute;
+    top:0px;
+    right:0px;
+    bottom:0px;
+    left:0px;
 }
 .App-DARK{
     background-color: rgb(78, 78, 78);
@@ -15,5 +20,5 @@
     left:0px;
 }
 .App-BIG {
-    font-size: 20px;
+    font-size: 24px;
 }
