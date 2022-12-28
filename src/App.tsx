@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import uuid4 from "uuid4";
 import "./App.css";
 import { FC } from "react";
 import db from "./firebaseconf";
@@ -40,7 +39,7 @@ const App: FC<undefined> = () => {
   useEffect(() => {
     getTodos();
   }, []);
-
+  
   let count: number = 0;
   const [todoexisted, setTodoexisted] = useState(false);
   const [nothinghaveDone, setNothinghaveDone] = useState(true);
@@ -106,7 +105,7 @@ const App: FC<undefined> = () => {
         return;
       }
     }
-    await addDoc(todosCollection, { name: newtodo, id: uuid4(), done: false });
+    await addDoc(todosCollection, { name: newtodo, done: false });
     getTodos();
     setNewtodo("");
   };
@@ -197,9 +196,9 @@ const App: FC<undefined> = () => {
               return (
                 <div key={e.id}>
                   {e.done ? (
-                    <RadioButtonCheckedIcon onClick={() => done(e.id)} />
+                    <RadioButtonCheckedIcon style={{cursor: 'pointer'}} onClick={() => done(e.id,e.done)} />
                   ) : (
-                    <RadioButtonUncheckedIcon onClick={() => done(e.id)} />
+                    <RadioButtonUncheckedIcon style={{cursor: 'pointer'}} onClick={() => done(e.id,e.done)} />
                   )}
                   {e.name}
                   &nbsp; &nbsp;

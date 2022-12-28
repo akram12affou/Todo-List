@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import {getFirestore} from "firebase/firestore"
 const firebaseConfig = {
-  apiKey: "AIzaSyCfRgZcZ9EuSEprlr9kMamhK5Qm9Uh8XK8",
+  apiKey:  import.meta.env.VITE_API_KEY,
   authDomain: "ts-todolist-github.firebaseapp.com",
   projectId: "ts-todolist-github",
   storageBucket: "ts-todolist-github.appspot.com",
