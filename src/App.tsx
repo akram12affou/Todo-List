@@ -3,14 +3,20 @@ import { useState } from "react";
 import "./App.css";
 import { FC } from "react";
 import db from "./firebaseconf";
+
 import {
   addDoc,
   collection,
   deleteDoc,
   doc,
   getDocs,
+  query,
   updateDoc,
+  where,
 } from "firebase/firestore";
+import {createUserWithEmailAndPassword, getAuth, onAuthStateChanged} from 'firebase/auth' 
+
+import {  signInWithEmailAndPassword,signOut } from 'firebase/auth' 
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
   Button,
@@ -29,17 +35,35 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import AddCircleOutlineTwoToneIcon from "@mui/icons-material/AddCircleOutlineTwoTone";
 import DeleteOutlineTwoToneIcon from "@mui/icons-material/DeleteOutlineTwoTone";
 const App: FC<undefined> = () => {
+  
   const todosCollection = collection(db, "todos");
+  
+  
   const [todoList, setTodoList] = useState<[]>([]);
   const getTodos = async () => {
-    const data = await getDocs(todosCollection);
+    setTodoList([])
+    const  qk = query(collection(db, "todos"), where("user" , '==',  window.localStorage.getItem('user')))
+    const data = await getDocs(qk);
     setTodoList(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+    console.log(window.localStorage.getItem('user'))
   };
-
+  const [user, setUser] = useState('')
+  const auth = getAuth()
+  useEffect(() => {
+    if(auth){
+    onAuthStateChanged(auth , CurrentUser => {  
+      setUser(CurrentUser)
+      window.localStorage.setItem('user' , CurrentUser?.email)
+      
+    })
+  }
+     },[user])
   useEffect(() => {
     getTodos();
   }, []);
-  
+  const [email , setEmail] = useState('')
+  const [password,setPassword] = useState('')
+  const [signIn ,setSignIn] = useState(true)
   let count: number = 0;
   const [todoexisted, setTodoexisted] = useState(false);
   const [nothinghaveDone, setNothinghaveDone] = useState(true);
@@ -57,6 +81,7 @@ const App: FC<undefined> = () => {
   const [bigletter, setBigletter] = useState<boolean>(
     window.localStorage.getItem("big-letter") == "true" ? true : false
   );
+     
   useEffect(() => {
     window.localStorage.setItem("dark-mode", DarkMode.toString());
   }, [DarkMode]);
@@ -105,7 +130,7 @@ const App: FC<undefined> = () => {
         return;
       }
     }
-    await addDoc(todosCollection, { name: newtodo, done: false });
+    await addDoc(todosCollection, { name: newtodo, done: false,user:auth.currentUser?.email });
     getTodos();
     setNewtodo("");
   };
@@ -144,8 +169,46 @@ const App: FC<undefined> = () => {
     }
     getTodos();
   };
+  const handleAuth = async () => {
+    if(signIn){
+      try{
+  
+        await createUserWithEmailAndPassword(getAuth(),email,password);
+        setEmail('')
+        setPassword('')
+      }catch(err){
+          console.log(err)
+      }
+    }else{
+      try{
+        await signInWithEmailAndPassword(getAuth(),email,password);
+        setEmail('')
+        setPassword('')
+      }catch(err){
+          console.log(err.message)
+      }
+    }
+    getTodos()
+  }
+  const logOut = async() => {
+    await signOut(getAuth());
+    getAuth()
+  }
+  console.log()
   return (
     <div className={DarkMode ? "App-DARK" : "App"}>
+      <p>account : {getAuth().currentUser?.email}</p>
+      {!user && <>
+      {signIn ?<h1>Sign In</h1> : <h1>Login</h1>}
+      email : <input type="text"  value={email} onChange = {(e) => setEmail(e.target.value)}/>
+      <br />
+      password : <input type="text" value={password} onChange = {(e) => setPassword(e.target.value)}/>
+      <br />
+      <button onClick={handleAuth}>{signIn ?'Sign In' :'Login'}</button>
+      {signIn ? <p onClick={() => setSignIn(false)} style={{color : 'red', textDecoration: 'underline' , cursor : 'pointer'}}>already have an account ?</p> : <p  onClick={() => setSignIn(true)} style={{color : 'red', textDecoration: 'underline' , cursor : 'pointer'}} >Create an account</p>}
+      </>}
+      {user && <button onClick={logOut}>Log Out</button>}
+      <hr></hr>
       <br />
       <div className="parameters">
         <input
@@ -169,7 +232,9 @@ const App: FC<undefined> = () => {
         <label htmlFor="">Big Letter</label>
       </div>
       <br />
+      { user && <>
       <div className={bigletter && "App-BIG"}>
+        
         <FormGroup row>
           <Col xs="2" sm={2}></Col>
           <Col sm={7}>
@@ -294,7 +359,9 @@ const App: FC<undefined> = () => {
         </FormGroup>
         {alert && <Alert color="danger">the Todo cant be Empty</Alert>}
       </div>
+      </>}
     </div>
+    
   );
 };
 
